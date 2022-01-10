@@ -2,7 +2,7 @@ import express from 'express';
 import EmployeeDao, { EmployeeDaoImpl } from './dao/employee-dao';
 import Employee from './entities/employee';
 import NotFoundError from './errors/not-found-error';
-import ReimbursementService, { ReimbursementServiceImpl } from './services/reimbursement-service';
+import ReimbursementService, { ReimbursementServiceImpl } from './services/reimbursement-services';
 import cors from 'cors';
 import ReimbursementDao, { ReimbursementDaoImpl } from './dao/reimbursement-dao';
 import ReimbursementItem from './entities/reimbursement-item';
@@ -31,11 +31,11 @@ app.route('/employees/:id')
     }
 })
 
-app.route('/employees/managed')
-.patch(async (req, res, next) => {
+app.route('/employees/managed/:id')
+.get(async (req, res, next) => {
     try {
-        const ids:string[] = req.body;
-        const employees = await reimbursementService.getManagedEmployees(ids);
+        const {id} = req.params;
+        const employees = await reimbursementService.getManagedEmployees(id);
         res.send(employees);
      } catch (error) {
         next(error);

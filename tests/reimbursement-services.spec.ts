@@ -4,13 +4,17 @@ import Employee from "../entities/employee";
 import reimbursementItem, { ReimbursementStatus } from "../entities/reimbursement-item";
 import InvalidPropertyError from "../errors/invalid-property-error";
 import NotFoundError from "../errors/not-found-error";
-import ReimbursementService, { ReimbursementServiceImpl } from "../services/reimbursement-service"
+import ReimbursementService, { ReimbursementServiceImpl } from "../services/reimbursement-services"
 
 const managedEmployees:string[] = ['c6493f17-8eb8-4b79-b2bf-449406495916', '11dfdd35-8d6e-4c2d-8903-ed9ceadb5d7e'];
 
 class mockEmployeeDao implements EmployeeDao {
 
     async getEmployeeById(id: string): Promise<Employee> {
+
+        if(id === 'testManger') {
+            return {fname:"", id:"", manages:managedEmployees};
+        }
     
         if(managedEmployees.find(str => str === id)) {
             return {id:"", fname:""};
@@ -49,13 +53,13 @@ describe("Test business logic and non-passthrough methods", () => {
 
     it("should return an array of employees", async ()=>{
 
-        const employees:Employee[] = await reimbursementService.getManagedEmployees(managedEmployees);
+        const employees:Employee[] = await reimbursementService.getManagedEmployees('testManger');
         expect(employees.length).toBe(2);
     })
 
     it("should throw a 404 error if the array contains an employee that doesn't exist", async () => {
         try {
-            await reimbursementService.getManagedEmployees(['test']);
+            await reimbursementService.getManagedEmployees('invalid');
             fail();
         } catch (error) {
             expect(error).toBeInstanceOf(NotFoundError);

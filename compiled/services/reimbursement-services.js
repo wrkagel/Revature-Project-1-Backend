@@ -34,10 +34,11 @@ class ReimbursementServiceImpl {
             return employee;
         });
     }
-    getManagedEmployees(ids) {
+    getManagedEmployees(id) {
         return __awaiter(this, void 0, void 0, function* () {
             let result = [];
-            for (const id of ids) {
+            const manages = (yield this.getEmployeeById(id)).manages;
+            for (const id of manages !== null && manages !== void 0 ? manages : []) {
                 result.push(yield this.employeeDao.getEmployeeById(id));
             }
             return result;

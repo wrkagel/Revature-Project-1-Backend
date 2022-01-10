@@ -13,7 +13,7 @@ export default interface ReimbursementService {
 
     getEmployeeByLogin(user:string, pass:string): Promise<Employee>
 
-    getManagedEmployees(ids:string[]): Promise<Employee[]>
+    getManagedEmployees(id:string): Promise<Employee[]>
 
     getReimbursementsForEmployee(id:string): Promise<ReimbursementItem[]>
 
@@ -37,9 +37,10 @@ export class ReimbursementServiceImpl implements ReimbursementService {
         return employee;
     }
 
-    async getManagedEmployees(ids:string[]): Promise<Employee[]> {
+    async getManagedEmployees(id:string): Promise<Employee[]> {
         let result:Employee[] = [];
-        for(const id of ids) {
+        const manages:string[] | undefined = (await this.getEmployeeById(id)).manages;
+        for(const id of manages ?? []) {
             result.push(await this.employeeDao.getEmployeeById(id));
         }
         return result;

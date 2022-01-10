@@ -15,11 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const reimbursement_item_1 = require("../entities/reimbursement-item");
 const invalid_property_error_1 = __importDefault(require("../errors/invalid-property-error"));
 const not_found_error_1 = __importDefault(require("../errors/not-found-error"));
-const reimbursement_service_1 = require("../services/reimbursement-service");
+const reimbursement_services_1 = require("../services/reimbursement-services");
 const managedEmployees = ['c6493f17-8eb8-4b79-b2bf-449406495916', '11dfdd35-8d6e-4c2d-8903-ed9ceadb5d7e'];
 class mockEmployeeDao {
     getEmployeeById(id) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (id === 'testManger') {
+                return { fname: "", id: "", manages: managedEmployees };
+            }
             if (managedEmployees.find(str => str === id)) {
                 return { id: "", fname: "" };
             }
@@ -50,14 +53,14 @@ class mockReimbursementDao {
     }
 }
 describe("Test business logic and non-passthrough methods", () => {
-    const reimbursementService = new reimbursement_service_1.ReimbursementServiceImpl(new mockEmployeeDao(), new mockReimbursementDao());
+    const reimbursementService = new reimbursement_services_1.ReimbursementServiceImpl(new mockEmployeeDao(), new mockReimbursementDao());
     it("should return an array of employees", () => __awaiter(void 0, void 0, void 0, function* () {
-        const employees = yield reimbursementService.getManagedEmployees(managedEmployees);
+        const employees = yield reimbursementService.getManagedEmployees('testManger');
         expect(employees.length).toBe(2);
     }));
     it("should throw a 404 error if the array contains an employee that doesn't exist", () => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            yield reimbursementService.getManagedEmployees(['test']);
+            yield reimbursementService.getManagedEmployees('invalid');
             fail();
         }
         catch (error) {
