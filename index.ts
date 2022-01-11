@@ -11,6 +11,7 @@ import http from 'http';
 import fs from 'fs'
 import ReimbursementService from './services/reimbursement-service-interface';
 import ReimbursementServiceImpl from './services/reimbursement-services';
+import Stats from './services/stats-interface';
 
 const app = express();
 
@@ -89,13 +90,14 @@ app.route('/reimbursements/update')
 
 app.route('/stats')
 .get(async (req, res, next) => {
-
+    const stats:Stats = await reimbursementService.getStats();
+    res.send(stats);
 })
 
-app.route('stats/:id')
-.get(async (req, res, next) => {
+// app.route('stats/:id')
+// .get(async (req, res, next) => {
 
-})
+// })
 
 app.all('*', (req, res, next) => {
     throw new NotFoundError(`The path you are trying to find does not exist. path: ${req.originalUrl}`, 'Unknown Route')

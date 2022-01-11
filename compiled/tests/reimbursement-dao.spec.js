@@ -51,7 +51,6 @@ describe("Test Reimbursement Dao", () => {
             yield reimbursementDao.updateReimbursementStatus("NotARealID", reimbursement_item_1.ReimbursementStatus.approved);
         }
         catch (error) {
-            console.log(JSON.stringify(error));
             expect(error).toBeInstanceOf(not_found_error_1.default);
         }
     }));

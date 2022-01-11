@@ -96,10 +96,12 @@ app.route('/reimbursements/update')
 }));
 app.route('/stats')
     .get((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const stats = yield reimbursementService.getStats();
+    res.send(stats);
 }));
-app.route('stats/:id')
-    .get((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-}));
+// app.route('stats/:id')
+// .get(async (req, res, next) => {
+// })
 app.all('*', (req, res, next) => {
     throw new not_found_error_1.default(`The path you are trying to find does not exist. path: ${req.originalUrl}`, 'Unknown Route');
 });
