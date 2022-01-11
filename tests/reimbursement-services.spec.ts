@@ -1,12 +1,16 @@
 import EmployeeDao from "../dao/employee-dao";
 import ReimbursementDao from "../dao/reimbursement-dao";
 import Employee from "../entities/employee";
+import ReimbursementItem from "../entities/reimbursement-item";
 import reimbursementItem, { ReimbursementStatus } from "../entities/reimbursement-item";
 import InvalidPropertyError from "../errors/invalid-property-error";
 import NotFoundError from "../errors/not-found-error";
-import ReimbursementService, { ReimbursementServiceImpl } from "../services/reimbursement-services"
+import ReimbursementServiceImpl from "../services/reimbursement-services";
+import ReimbursementService from "../services/reimbursement-services"
+import Stats from "../services/stats-interface";
 
-const managedEmployees:string[] = ['c6493f17-8eb8-4b79-b2bf-449406495916', '11dfdd35-8d6e-4c2d-8903-ed9ceadb5d7e'];
+const managedEmployees:string[] = ['Harvey1', 'Harvey2',
+    "Steve1", "Steve2"];
 
 class mockEmployeeDao implements EmployeeDao {
 
@@ -17,7 +21,7 @@ class mockEmployeeDao implements EmployeeDao {
         }
     
         if(managedEmployees.find(str => str === id)) {
-            return {id:"", fname:""};
+            return {id, fname:""};
         } else {
             throw new NotFoundError('Not Found', 'Test');
         }
@@ -29,6 +33,9 @@ class mockEmployeeDao implements EmployeeDao {
 }
 
 class mockReimbursementDao implements ReimbursementDao {
+    async getAllReimbursements(): Promise<reimbursementItem[]> {
+        return mockReimbursements;
+    }
     updateReimbursementStatus(id:string, status:ReimbursementStatus): Promise<reimbursementItem> {
         throw new Error("Method not implemented.");
     }
@@ -47,6 +54,23 @@ class mockReimbursementDao implements ReimbursementDao {
     
 }
 
+const mockReimbursement:ReimbursementItem = {
+    id:"",
+    employeeId:"Steve1",
+    type:"",
+    desc:"",
+    amount:20,
+    date:0,
+    status:ReimbursementStatus.denied
+}
+const mockReimbursements:reimbursementItem[] = [
+    mockReimbursement,
+    mockReimbursement,
+    mockReimbursement,
+    {...mockReimbursement, employeeId:"Steve2", amount:5.47},
+    {...mockReimbursement, employeeId:"Steve2", amount:20.55}
+]
+
 describe("Test business logic and non-passthrough methods", () => {
 
     const reimbursementService:ReimbursementService = new ReimbursementServiceImpl(new mockEmployeeDao(), new mockReimbursementDao());
@@ -54,7 +78,7 @@ describe("Test business logic and non-passthrough methods", () => {
     it("should return an array of employees", async ()=>{
 
         const employees:Employee[] = await reimbursementService.getManagedEmployees('testManger');
-        expect(employees.length).toBe(2);
+        expect(employees.length).toBe(4);
     })
 
     it("should throw a 404 error if the array contains an employee that doesn't exist", async () => {
@@ -106,7 +130,7 @@ describe("Test business logic and non-passthrough methods", () => {
                 'amount: -1',
                 'date: -1',
                 'status: testing'
-            ])
+            ]);
         }
 
     });
@@ -119,5 +143,15 @@ describe("Test business logic and non-passthrough methods", () => {
             expect(error).toBeInstanceOf(InvalidPropertyError);
             expect(error).toHaveProperty("keyValuePairs", ['status: dave']);
         }
-    }) 
+    });
+
+    it("should return a set of statistics based on the current set of reimbursements in the db", async () => {
+        const stats:Stats = await reimbursementService.getStats();
+        expect(stats.highest.employee.id).toBe("Steve2");
+        expect(stats.highestAvgByEmployee.amount).toBe(20);
+        expect(stats.highestAvgByEmployee.employee.id).toBe("Steve1");
+        expect(stats.lowestAvgByEmployee.employee.id).toBe("Steve2");
+        expect(stats.lowestAvgByEmployee.amount).toBe((5.47 + 20.55)/2);
+        expect(stats.avgAmount).toBe((20+20+20+5.47+20.55)/5);
+    });
 })

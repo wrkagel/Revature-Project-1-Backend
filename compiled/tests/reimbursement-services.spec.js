@@ -15,8 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const reimbursement_item_1 = require("../entities/reimbursement-item");
 const invalid_property_error_1 = __importDefault(require("../errors/invalid-property-error"));
 const not_found_error_1 = __importDefault(require("../errors/not-found-error"));
-const reimbursement_services_1 = require("../services/reimbursement-services");
-const managedEmployees = ['c6493f17-8eb8-4b79-b2bf-449406495916', '11dfdd35-8d6e-4c2d-8903-ed9ceadb5d7e'];
+const reimbursement_services_1 = __importDefault(require("../services/reimbursement-services"));
+const managedEmployees = ['Harvey1', 'Harvey2',
+    "Steve1", "Steve2"];
 class mockEmployeeDao {
     getEmployeeById(id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -24,7 +25,7 @@ class mockEmployeeDao {
                 return { fname: "", id: "", manages: managedEmployees };
             }
             if (managedEmployees.find(str => str === id)) {
-                return { id: "", fname: "" };
+                return { id, fname: "" };
             }
             else {
                 throw new not_found_error_1.default('Not Found', 'Test');
@@ -36,6 +37,11 @@ class mockEmployeeDao {
     }
 }
 class mockReimbursementDao {
+    getAllReimbursements() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return mockReimbursements;
+        });
+    }
     updateReimbursementStatus(id, status) {
         throw new Error("Method not implemented.");
     }
@@ -52,11 +58,27 @@ class mockReimbursementDao {
         throw new Error("Method not implemented.");
     }
 }
+const mockReimbursement = {
+    id: "",
+    employeeId: "Steve1",
+    type: "",
+    desc: "",
+    amount: 20,
+    date: 0,
+    status: reimbursement_item_1.ReimbursementStatus.denied
+};
+const mockReimbursements = [
+    mockReimbursement,
+    mockReimbursement,
+    mockReimbursement,
+    Object.assign(Object.assign({}, mockReimbursement), { employeeId: "Steve2", amount: 5.47 }),
+    Object.assign(Object.assign({}, mockReimbursement), { employeeId: "Steve2", amount: 20.55 })
+];
 describe("Test business logic and non-passthrough methods", () => {
-    const reimbursementService = new reimbursement_services_1.ReimbursementServiceImpl(new mockEmployeeDao(), new mockReimbursementDao());
+    const reimbursementService = new reimbursement_services_1.default(new mockEmployeeDao(), new mockReimbursementDao());
     it("should return an array of employees", () => __awaiter(void 0, void 0, void 0, function* () {
         const employees = yield reimbursementService.getManagedEmployees('testManger');
-        expect(employees.length).toBe(2);
+        expect(employees.length).toBe(4);
     }));
     it("should throw a 404 error if the array contains an employee that doesn't exist", () => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -119,5 +141,14 @@ describe("Test business logic and non-passthrough methods", () => {
             expect(error).toBeInstanceOf(invalid_property_error_1.default);
             expect(error).toHaveProperty("keyValuePairs", ['status: dave']);
         }
+    }));
+    it("should return a set of statistics based on the current set of reimbursements in the db", () => __awaiter(void 0, void 0, void 0, function* () {
+        const stats = yield reimbursementService.getStats();
+        expect(stats.highest.employee.id).toBe("Steve2");
+        expect(stats.highestAvgByEmployee.amount).toBe(20);
+        expect(stats.highestAvgByEmployee.employee.id).toBe("Steve1");
+        expect(stats.lowestAvgByEmployee.employee.id).toBe("Steve2");
+        expect(stats.lowestAvgByEmployee.amount).toBe((5.47 + 20.55) / 2);
+        expect(stats.avgAmount).toBe((20 + 20 + 20 + 5.47 + 20.55) / 5);
     }));
 });

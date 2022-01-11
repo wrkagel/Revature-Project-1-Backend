@@ -2,7 +2,6 @@ import express from 'express';
 import EmployeeDao, { EmployeeDaoImpl } from './dao/employee-dao';
 import Employee from './entities/employee';
 import NotFoundError from './errors/not-found-error';
-import ReimbursementService, { ReimbursementServiceImpl } from './services/reimbursement-services';
 import cors from 'cors';
 import ReimbursementDao, { ReimbursementDaoImpl } from './dao/reimbursement-dao';
 import ReimbursementItem from './entities/reimbursement-item';
@@ -10,6 +9,8 @@ import InvalidPropertyError from './errors/invalid-property-error';
 import https from 'https'
 import http from 'http';
 import fs from 'fs'
+import ReimbursementService from './services/reimbursement-service-interface';
+import ReimbursementServiceImpl from './services/reimbursement-services';
 
 const app = express();
 
@@ -84,6 +85,16 @@ app.route('/reimbursements/update')
     } catch (error) {
         next(error);
     }
+})
+
+app.route('/stats')
+.get(async (req, res, next) => {
+
+})
+
+app.route('stats/:id')
+.get(async (req, res, next) => {
+
 })
 
 app.all('*', (req, res, next) => {

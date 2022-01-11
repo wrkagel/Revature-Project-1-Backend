@@ -5,25 +5,10 @@ import ReimbursementItem, { ReimbursementStatus } from "../entities/reimbursemen
 import errorHandler from "../errors/error-handler-reimbursement-service";
 import InvalidPropertyError from "../errors/invalid-property-error";
 import NotFoundError from "../errors/not-found-error";
+import ReimbursementService from "./reimbursement-service-interface";
+import Stats from "./stats-interface";
 
-
-export default interface ReimbursementService {
-    
-    getEmployeeById(id:string) : Promise<Employee>
-
-    getEmployeeByLogin(user:string, pass:string): Promise<Employee>
-
-    getManagedEmployees(id:string): Promise<Employee[]>
-
-    getReimbursementsForEmployee(id:string): Promise<ReimbursementItem[]>
-
-    createReimbursement(item:ReimbursementItem): Promise<ReimbursementItem>
-
-    updateReimbursement(id:string, status:ReimbursementStatus): Promise<ReimbursementItem>
-
-}
-
-export class ReimbursementServiceImpl implements ReimbursementService {
+export default class ReimbursementServiceImpl implements ReimbursementService {
 
     constructor(private employeeDao:EmployeeDao, private reimbursementDao:ReimbursementDao){}
     
@@ -74,6 +59,30 @@ export class ReimbursementServiceImpl implements ReimbursementService {
         }
         const reimbursement:ReimbursementItem = await this.reimbursementDao.updateReimbursementStatus(id, status);
         return reimbursement;
+    }
+
+    async getStats(): Promise<Stats> {
+        const reimbursements:ReimbursementItem[] = await this.reimbursementDao.getAllReimbursements();
+        reimbursements.sort((r1, r2) => r2.amount - r1.amount);
+        const highestItem:ReimbursementItem = reimbursements[0];
+        const highest = {employee:(await this.employeeDao.getEmployeeById(highestItem.employeeId)), reimbursement:highestItem};
+        const average:number = reimbursements.reduce((n, r2) => n + r2.amount, 0) / reimbursements.length;
+        const reimbursementsByEmployee:{employeeId:string, total:number, length:number}[] = [];
+        reimbursements.forEach(r => {
+            const index = reimbursementsByEmployee.findIndex(e => e.employeeId === r.employeeId);
+            if(index !== -1) {
+                reimbursementsByEmployee[index].total += r.amount;
+                reimbursementsByEmployee[index].length++;
+            } else {
+                reimbursementsByEmployee.push({employeeId:r.employeeId, total:r.amount, length:1});
+            }
+        });
+        reimbursementsByEmployee.sort((e1, e2) => e2.total / e2.length - e1.total / e1.length);
+        const highestAvg = reimbursementsByEmployee[0];
+        const lowestAvg = reimbursementsByEmployee[reimbursementsByEmployee.length - 1];
+        const highestAvgByEmployee = {employee:await this.getEmployeeById(highestAvg.employeeId), amount:highestAvg.total/highestAvg.length};
+        const lowestAvgByEmployee = {employee:await this.getEmployeeById(lowestAvg.employeeId), amount:lowestAvg.total/lowestAvg.length};
+        return {highest, avgAmount:average, highestAvgByEmployee, lowestAvgByEmployee};
     }
 
 }

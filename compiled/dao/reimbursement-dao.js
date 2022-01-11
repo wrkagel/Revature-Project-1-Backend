@@ -23,6 +23,16 @@ class ReimbursementDaoImpl {
         this.database = this.client.database('wk-revature-db');
         this.container = this.database.container('Reimbursements');
     }
+    getAllReimbursements() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.container.items.readAll().fetchAll();
+            const reimbursements = response.resources;
+            return reimbursements.map((r) => {
+                const { id, employeeId, type, desc, amount, date, status } = r;
+                return { id, employeeId, type, desc, amount, date, status };
+            });
+        });
+    }
     getAllReimbursementsForEmployee(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const querySpec = {
@@ -31,15 +41,8 @@ class ReimbursementDaoImpl {
             const response = yield this.container.items.query(querySpec).fetchAll();
             const reimbursements = response.resources;
             return reimbursements.map((r) => {
-                return {
-                    id: r.id,
-                    employeeId: r.employeeId,
-                    type: r.type,
-                    desc: r.desc,
-                    amount: r.amount,
-                    date: r.date,
-                    status: r.status
-                };
+                const { id, employeeId, type, desc, amount, date, status } = r;
+                return { id, employeeId, type, desc, amount, date, status };
             });
         });
     }
@@ -52,27 +55,6 @@ class ReimbursementDaoImpl {
                 throw new Error('Failed to create reimbursement.');
             const { id, employeeId, type, desc, amount, date, status } = reimbursement;
             return { id, employeeId, type, desc, amount, date, status };
-        });
-    }
-    getHighest() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const querySpec = {
-                query: 'SELECT * FROM Reimbursements r ORDER BY r.amount DESC'
-            };
-            const response = yield this.container.items.query(querySpec).fetchNext();
-            const reimbursement = response.resources[0];
-            return reimbursement;
-        });
-    }
-    getEmployeeWithHighestAverage() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const querySpec = {
-                query: 'SELECT r.employeeId, avg(r.amount) AS average FROM Reimbursements r GROUP BY r.employeeId'
-            };
-            const response = yield this.container.items.query(querySpec).fetchAll();
-            const results = response.resources;
-            results.sort((r1, r2) => r2.average - r1.average);
-            return results[0].employeeId;
         });
     }
     updateReimbursementStatus(id, status) {

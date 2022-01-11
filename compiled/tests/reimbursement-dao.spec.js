@@ -42,14 +42,6 @@ describe("Test Reimbursement Dao", () => {
         expect(returnResult).toEqual(dummyReimbursement);
         dummyReimbursement = returnResult;
     }));
-    it("should return the highest value reimbursement in the database by amount", () => __awaiter(void 0, void 0, void 0, function* () {
-        const reimbursement = yield reimbursementDao.getHighest();
-        expect(reimbursement.amount).toBe(dummyReimbursement.amount);
-    }));
-    it("should return the employeeId of the employee with the highest average amount", () => __awaiter(void 0, void 0, void 0, function* () {
-        const employeeId = yield reimbursementDao.getEmployeeWithHighestAverage();
-        expect(employeeId).toBe(dummyReimbursement.employeeId);
-    }));
     it("should update the status of the reimbursement created earlier to denied", () => __awaiter(void 0, void 0, void 0, function* () {
         const reimbursement = yield reimbursementDao.updateReimbursementStatus(dummyReimbursement.id, reimbursement_item_1.ReimbursementStatus.denied);
         expect(reimbursement).toHaveProperty("status", reimbursement_item_1.ReimbursementStatus.denied);
@@ -62,6 +54,11 @@ describe("Test Reimbursement Dao", () => {
             console.log(JSON.stringify(error));
             expect(error).toBeInstanceOf(not_found_error_1.default);
         }
+    }));
+    it("should return all reimbursements in the database", () => __awaiter(void 0, void 0, void 0, function* () {
+        const reimbursements = yield reimbursementDao.getAllReimbursements();
+        expect(reimbursements).toBeTruthy();
+        expect(reimbursements.length).toBeGreaterThan(5);
     }));
     afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
         try {

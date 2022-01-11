@@ -4,6 +4,7 @@ import NotFoundError from "../errors/not-found-error";
 
 
 export default interface EmployeeDao {
+    
     getEmployeeById(id:string): Promise<Employee>;
 
     getEmployeeByLogin(user:string, pass:string): Promise<Employee>;

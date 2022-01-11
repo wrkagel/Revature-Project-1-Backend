@@ -15,17 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const employee_dao_1 = require("./dao/employee-dao");
 const not_found_error_1 = __importDefault(require("./errors/not-found-error"));
-const reimbursement_services_1 = require("./services/reimbursement-services");
 const cors_1 = __importDefault(require("cors"));
 const reimbursement_dao_1 = require("./dao/reimbursement-dao");
 const invalid_property_error_1 = __importDefault(require("./errors/invalid-property-error"));
 const https_1 = __importDefault(require("https"));
 const http_1 = __importDefault(require("http"));
 const fs_1 = __importDefault(require("fs"));
+const reimbursement_services_1 = __importDefault(require("./services/reimbursement-services"));
 const app = (0, express_1.default)();
 const employeeDao = new employee_dao_1.EmployeeDaoImpl();
 const reimbursementDao = new reimbursement_dao_1.ReimbursementDaoImpl();
-const reimbursementService = new reimbursement_services_1.ReimbursementServiceImpl(employeeDao, reimbursementDao);
+const reimbursementService = new reimbursement_services_1.default(employeeDao, reimbursementDao);
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.route('/employees/:id')
@@ -93,6 +93,12 @@ app.route('/reimbursements/update')
     catch (error) {
         next(error);
     }
+}));
+app.route('/stats')
+    .get((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+app.route('stats/:id')
+    .get((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 app.all('*', (req, res, next) => {
     throw new not_found_error_1.default(`The path you are trying to find does not exist. path: ${req.originalUrl}`, 'Unknown Route');

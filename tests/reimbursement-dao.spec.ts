@@ -37,18 +37,6 @@ describe("Test Reimbursement Dao", () => {
         dummyReimbursement = returnResult;
     })
 
-    it("should return the highest value reimbursement in the database by amount", async () => {
-
-        const reimbursement:ReimbursementItem = await reimbursementDao.getHighest();
-        expect(reimbursement.amount).toBe(dummyReimbursement.amount);
-    });
-
-    it("should return the employeeId of the employee with the highest average amount", async () => {
-
-        const employeeId:string = await reimbursementDao.getEmployeeWithHighestAverage();
-        expect(employeeId).toBe(dummyReimbursement.employeeId);
-    })
-
     it("should update the status of the reimbursement created earlier to denied", async () => {
         const reimbursement:ReimbursementItem = await reimbursementDao.updateReimbursementStatus(dummyReimbursement.id, ReimbursementStatus.denied);
         expect(reimbursement).toHaveProperty("status", ReimbursementStatus.denied);
@@ -58,10 +46,15 @@ describe("Test Reimbursement Dao", () => {
         try {
             await reimbursementDao.updateReimbursementStatus("NotARealID", ReimbursementStatus.approved)   
         } catch (error) {
-            console.log(JSON.stringify(error));
             expect(error).toBeInstanceOf(NotFoundError);
         }
     });
+
+    it("should return all reimbursements in the database", async () => {
+        const reimbursements:ReimbursementItem[] = await reimbursementDao.getAllReimbursements();
+        expect(reimbursements).toBeTruthy();
+        expect(reimbursements.length).toBeGreaterThan(5);
+    })
 
     afterAll(async () => {
         try {
