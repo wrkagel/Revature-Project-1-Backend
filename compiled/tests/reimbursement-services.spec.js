@@ -21,7 +21,7 @@ const managedEmployees = ['Harvey1', 'Harvey2',
 class mockEmployeeDao {
     getEmployeeById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (id === 'testManger') {
+            if (id === 'testManager') {
                 return { fname: "", id: "", manages: managedEmployees };
             }
             if (managedEmployees.find(str => str === id)) {
@@ -77,7 +77,7 @@ const mockReimbursements = [
 describe("Test business logic and non-passthrough methods", () => {
     const reimbursementService = new reimbursement_services_1.default(new mockEmployeeDao(), new mockReimbursementDao());
     it("should return an array of employees", () => __awaiter(void 0, void 0, void 0, function* () {
-        const employees = yield reimbursementService.getManagedEmployees('testManger');
+        const employees = yield reimbursementService.getManagedEmployees('testManager');
         expect(employees.length).toBe(4);
     }));
     it("should throw a 404 error if the array contains an employee that doesn't exist", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -143,12 +143,13 @@ describe("Test business logic and non-passthrough methods", () => {
         }
     }));
     it("should return a set of statistics based on the current set of reimbursements in the db", () => __awaiter(void 0, void 0, void 0, function* () {
-        const stats = yield reimbursementService.getStats();
-        expect(stats.highest.employee.id).toBe("Steve2");
-        expect(stats.highestAvgByEmployee.amount).toBe(20);
-        expect(stats.highestAvgByEmployee.employee.id).toBe("Steve1");
-        expect(stats.lowestAvgByEmployee.employee.id).toBe("Steve2");
-        expect(stats.lowestAvgByEmployee.amount).toBe((5.47 + 20.55) / 2);
-        expect(stats.avgAmount).toBe((20 + 20 + 20 + 5.47 + 20.55) / 5);
+        const { companyStats, managedStats } = yield reimbursementService.getStats("testManager");
+        expect(companyStats.highest.employee.id).toBe("Steve2");
+        expect(companyStats.highestAvgByEmployee.amount).toBe("20.00");
+        expect(companyStats.highestAvgByEmployee.employee.id).toBe("Steve1");
+        expect(companyStats.lowestAvgByEmployee.employee.id).toBe("Steve2");
+        expect(companyStats.lowestAvgByEmployee.amount).toBe(((5.47 + 20.55) / 2).toFixed(2));
+        expect(companyStats.avgAmount).toBe(((20 + 20 + 20 + 5.47 + 20.55) / 5).toFixed(2));
+        expect(companyStats).toEqual(managedStats);
     }));
 });

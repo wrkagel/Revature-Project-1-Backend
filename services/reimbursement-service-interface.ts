@@ -17,5 +17,5 @@ export default interface ReimbursementService {
 
     updateReimbursement(id:string, status:ReimbursementStatus): Promise<ReimbursementItem>
 
-    getStats(): Promise<Statistics>;
+    getStats(id:string): Promise<{companyStats:Statistics, managedStats:Statistics}>;
 }

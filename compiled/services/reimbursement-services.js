@@ -76,9 +76,23 @@ class ReimbursementServiceImpl {
             return reimbursement;
         });
     }
-    getStats() {
+    getStats(id) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const reimbursements = yield this.reimbursementDao.getAllReimbursements();
+            const companyStats = yield this.calculateStats(reimbursements);
+            const managed = (_a = (yield this.employeeDao.getEmployeeById(id)).manages) !== null && _a !== void 0 ? _a : [];
+            const reimbursementForManaged = [];
+            reimbursements.forEach((r) => {
+                if (managed.includes(r.employeeId))
+                    reimbursementForManaged.push(r);
+            });
+            const managedStats = yield this.calculateStats(reimbursementForManaged);
+            return { companyStats, managedStats };
+        });
+    }
+    calculateStats(reimbursements) {
+        return __awaiter(this, void 0, void 0, function* () {
             reimbursements.sort((r1, r2) => r2.amount - r1.amount);
             const highestItem = reimbursements[0];
             const highest = { employee: (yield this.employeeDao.getEmployeeById(highestItem.employeeId)), reimbursement: highestItem };

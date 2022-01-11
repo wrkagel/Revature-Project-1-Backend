@@ -7,7 +7,6 @@ import InvalidPropertyError from "../errors/invalid-property-error";
 import NotFoundError from "../errors/not-found-error";
 import ReimbursementServiceImpl from "../services/reimbursement-services";
 import ReimbursementService from "../services/reimbursement-services"
-import Statistics from "../entities/stats-interface";
 
 const managedEmployees:string[] = ['Harvey1', 'Harvey2',
     "Steve1", "Steve2"];
@@ -16,7 +15,7 @@ class mockEmployeeDao implements EmployeeDao {
 
     async getEmployeeById(id: string): Promise<Employee> {
 
-        if(id === 'testManger') {
+        if(id === 'testManager') {
             return {fname:"", id:"", manages:managedEmployees};
         }
     
@@ -77,7 +76,7 @@ describe("Test business logic and non-passthrough methods", () => {
 
     it("should return an array of employees", async ()=>{
 
-        const employees:Employee[] = await reimbursementService.getManagedEmployees('testManger');
+        const employees:Employee[] = await reimbursementService.getManagedEmployees('testManager');
         expect(employees.length).toBe(4);
     })
 
@@ -146,12 +145,13 @@ describe("Test business logic and non-passthrough methods", () => {
     });
 
     it("should return a set of statistics based on the current set of reimbursements in the db", async () => {
-        const stats:Statistics = await reimbursementService.getStats();
-        expect(stats.highest.employee.id).toBe("Steve2");
-        expect(stats.highestAvgByEmployee.amount).toBe(20);
-        expect(stats.highestAvgByEmployee.employee.id).toBe("Steve1");
-        expect(stats.lowestAvgByEmployee.employee.id).toBe("Steve2");
-        expect(stats.lowestAvgByEmployee.amount).toBe((5.47 + 20.55)/2);
-        expect(stats.avgAmount).toBe((20+20+20+5.47+20.55)/5);
+        const {companyStats, managedStats} = await reimbursementService.getStats("testManager");
+        expect(companyStats.highest.employee.id).toBe("Steve2");
+        expect(companyStats.highestAvgByEmployee.amount).toBe("20.00");
+        expect(companyStats.highestAvgByEmployee.employee.id).toBe("Steve1");
+        expect(companyStats.lowestAvgByEmployee.employee.id).toBe("Steve2");
+        expect(companyStats.lowestAvgByEmployee.amount).toBe(((5.47 + 20.55)/2).toFixed(2));
+        expect(companyStats.avgAmount).toBe(((20+20+20+5.47+20.55)/5).toFixed(2));
+        expect(companyStats).toEqual(managedStats);
     });
 })

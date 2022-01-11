@@ -61,8 +61,19 @@ export default class ReimbursementServiceImpl implements ReimbursementService {
         return reimbursement;
     }
 
-    async getStats(): Promise<Statistics> {
+    async getStats(id:string): Promise<{companyStats:Statistics, managedStats:Statistics}> {
         const reimbursements:ReimbursementItem[] = await this.reimbursementDao.getAllReimbursements();
+        const companyStats:Statistics = await this.calculateStats(reimbursements);
+        const managed:string[] = (await this.employeeDao.getEmployeeById(id)).manages ?? [];
+        const reimbursementForManaged:ReimbursementItem[] = [];
+        reimbursements.forEach((r) => {
+            if(managed.includes(r.employeeId)) reimbursementForManaged.push(r);
+        });
+        const managedStats:Statistics = await this.calculateStats(reimbursementForManaged);
+        return {companyStats, managedStats};
+    }
+
+    private async calculateStats(reimbursements:ReimbursementItem[]):Promise<Statistics> {
         reimbursements.sort((r1, r2) => r2.amount - r1.amount);
         const highestItem:ReimbursementItem = reimbursements[0];
         const highest = {employee:(await this.employeeDao.getEmployeeById(highestItem.employeeId)), reimbursement:highestItem};

@@ -88,16 +88,12 @@ app.route('/reimbursements/update')
     }
 })
 
-app.route('/stats')
+app.route('/stats/:id')
 .get(async (req, res, next) => {
-    const stats:Statistics = await reimbursementService.getStats();
+    const {id} = req.params;
+    const stats:{companyStats:Statistics, managedStats:Statistics} = await reimbursementService.getStats(id);
     res.send(stats);
 })
-
-// app.route('stats/:id')
-// .get(async (req, res, next) => {
-
-// })
 
 app.all('*', (req, res, next) => {
     throw new NotFoundError(`The path you are trying to find does not exist. path: ${req.originalUrl}`, 'Unknown Route')
