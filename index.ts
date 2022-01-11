@@ -11,7 +11,7 @@ import http from 'http';
 import fs from 'fs'
 import ReimbursementService from './services/reimbursement-service-interface';
 import ReimbursementServiceImpl from './services/reimbursement-services';
-import Stats from './services/stats-interface';
+import Statistics from './entities/stats-interface';
 
 const app = express();
 
@@ -90,7 +90,7 @@ app.route('/reimbursements/update')
 
 app.route('/stats')
 .get(async (req, res, next) => {
-    const stats:Stats = await reimbursementService.getStats();
+    const stats:Statistics = await reimbursementService.getStats();
     res.send(stats);
 })
 

@@ -7,7 +7,7 @@ import InvalidPropertyError from "../errors/invalid-property-error";
 import NotFoundError from "../errors/not-found-error";
 import ReimbursementServiceImpl from "../services/reimbursement-services";
 import ReimbursementService from "../services/reimbursement-services"
-import Stats from "../services/stats-interface";
+import Statistics from "../entities/stats-interface";
 
 const managedEmployees:string[] = ['Harvey1', 'Harvey2',
     "Steve1", "Steve2"];
@@ -146,7 +146,7 @@ describe("Test business logic and non-passthrough methods", () => {
     });
 
     it("should return a set of statistics based on the current set of reimbursements in the db", async () => {
-        const stats:Stats = await reimbursementService.getStats();
+        const stats:Statistics = await reimbursementService.getStats();
         expect(stats.highest.employee.id).toBe("Steve2");
         expect(stats.highestAvgByEmployee.amount).toBe(20);
         expect(stats.highestAvgByEmployee.employee.id).toBe("Steve1");

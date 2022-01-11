@@ -1,6 +1,6 @@
 import Employee from "../entities/employee";
 import ReimbursementItem, { ReimbursementStatus } from "../entities/reimbursement-item";
-import Stats from "./stats-interface";
+import Statistics from "../entities/stats-interface";
 
 
 export default interface ReimbursementService {
@@ -17,5 +17,5 @@ export default interface ReimbursementService {
 
     updateReimbursement(id:string, status:ReimbursementStatus): Promise<ReimbursementItem>
 
-    getStats(): Promise<Stats>;
+    getStats(): Promise<Statistics>;
 }

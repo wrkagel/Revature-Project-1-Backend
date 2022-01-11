@@ -82,7 +82,7 @@ class ReimbursementServiceImpl {
             reimbursements.sort((r1, r2) => r2.amount - r1.amount);
             const highestItem = reimbursements[0];
             const highest = { employee: (yield this.employeeDao.getEmployeeById(highestItem.employeeId)), reimbursement: highestItem };
-            const average = reimbursements.reduce((n, r2) => n + r2.amount, 0) / reimbursements.length;
+            const average = (reimbursements.reduce((n, r2) => n + r2.amount, 0) / reimbursements.length).toFixed(2);
             const reimbursementsByEmployee = [];
             reimbursements.forEach(r => {
                 const index = reimbursementsByEmployee.findIndex(e => e.employeeId === r.employeeId);
@@ -97,8 +97,10 @@ class ReimbursementServiceImpl {
             reimbursementsByEmployee.sort((e1, e2) => e2.total / e2.length - e1.total / e1.length);
             const highestAvg = reimbursementsByEmployee[0];
             const lowestAvg = reimbursementsByEmployee[reimbursementsByEmployee.length - 1];
-            const highestAvgByEmployee = { employee: yield this.getEmployeeById(highestAvg.employeeId), amount: highestAvg.total / highestAvg.length };
-            const lowestAvgByEmployee = { employee: yield this.getEmployeeById(lowestAvg.employeeId), amount: lowestAvg.total / lowestAvg.length };
+            const highestAvgByEmployee = { employee: yield this.getEmployeeById(highestAvg.employeeId),
+                amount: (highestAvg.total / highestAvg.length).toFixed(2) };
+            const lowestAvgByEmployee = { employee: yield this.getEmployeeById(lowestAvg.employeeId),
+                amount: (lowestAvg.total / lowestAvg.length).toFixed(2) };
             return { highest, avgAmount: average, highestAvgByEmployee, lowestAvgByEmployee };
         });
     }
