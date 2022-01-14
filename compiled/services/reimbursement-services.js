@@ -76,6 +76,11 @@ class ReimbursementServiceImpl {
             return reimbursement;
         });
     }
+    uploadFiles(id, fd) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.reimbursementDao.uploadFiles(id, fd);
+        });
+    }
     getStats(id) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {

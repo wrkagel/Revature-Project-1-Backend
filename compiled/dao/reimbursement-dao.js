@@ -14,36 +14,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReimbursementDaoImpl = void 0;
 const cosmos_1 = require("@azure/cosmos");
+const storage_blob_1 = require("@azure/storage-blob");
 const uuid_1 = require("uuid");
 const not_found_error_1 = __importDefault(require("../errors/not-found-error"));
 class ReimbursementDaoImpl {
     constructor() {
-        var _a;
+        var _a, _b;
         this.client = new cosmos_1.CosmosClient((_a = process.env.COSMOS_CONNECTION) !== null && _a !== void 0 ? _a : "");
         this.database = this.client.database('wk-revature-db');
         this.container = this.database.container('Reimbursements');
+        this.blobServiceClient = storage_blob_1.BlobServiceClient.fromConnectionString((_b = process.env.AZURE_STORAGE_CONNECTION_STRING) !== null && _b !== void 0 ? _b : "");
+        this.blobContainerClient = this.blobServiceClient.getContainerClient('wk-project1');
     }
     getAllReimbursements() {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.container.items.readAll().fetchAll();
+            const querySpec = {
+                query: `SELECT r.id, r.employeeId, r.type, r["desc"], r.date, r.status FROM Reimbursements r`
+            };
+            const response = yield this.container.items.query(querySpec).fetchAll();
             const reimbursements = response.resources;
-            return reimbursements.map((r) => {
-                const { id, employeeId, type, desc, amount, date, status } = r;
-                return { id, employeeId, type, desc, amount, date, status };
-            });
+            return reimbursements;
         });
     }
     getAllReimbursementsForEmployee(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const querySpec = {
-                query: `SELECT * FROM Reimbursements r WHERE r.employeeId = '${id}'`
+                query: `SELECT r.id, r.employeeId, r.type, r["desc"], r.date, r.status FROM Reimbursements r WHERE r.employeeId = '${id}'`
             };
             const response = yield this.container.items.query(querySpec).fetchAll();
             const reimbursements = response.resources;
-            return reimbursements.map((r) => {
-                const { id, employeeId, type, desc, amount, date, status } = r;
-                return { id, employeeId, type, desc, amount, date, status };
-            });
+            return reimbursements;
         });
     }
     createReimbursement(item) {
@@ -75,6 +75,34 @@ class ReimbursementDaoImpl {
                     error = new not_found_error_1.default(`There is no matching reimbursement in the database to update. id: ${id}`, 'Reimbursement Update');
                 throw (error);
             }
+        });
+    }
+    uploadFiles(id, fd) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.container.item(id, id).read();
+            if (!response || !response.resource)
+                throw new not_found_error_1.default(`There is no matching reimbursement in the database to update. id: ${id}`, 'Reimbursement Update');
+            const reimbursement = response.resource;
+            for (const file of fd) {
+                const blockBlobClient = this.blobContainerClient.getBlockBlobClient(file.originalname);
+                yield blockBlobClient.uploadData(file.buffer, {
+                    blobHTTPHeaders: {
+                        blobContentType: file.mimetype
+                    }
+                });
+                if (reimbursement.files) {
+                    if (!reimbursement.files.includes(blockBlobClient.url)) {
+                        reimbursement.files.push(blockBlobClient.url);
+                    }
+                }
+                else {
+                    reimbursement.files = [blockBlobClient.url];
+                }
+            }
+            const response2 = yield this.container.item(id, id).replace(reimbursement);
+            if (!response2 || !response2.resource)
+                throw new not_found_error_1.default(`There is no matching reimbursement in the database to update. id: ${id}`, 'Reimbursement Update');
+            return true;
         });
     }
 }

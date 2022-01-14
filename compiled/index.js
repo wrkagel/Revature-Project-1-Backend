@@ -22,11 +22,27 @@ const https_1 = __importDefault(require("https"));
 const http_1 = __importDefault(require("http"));
 const fs_1 = __importDefault(require("fs"));
 const reimbursement_services_1 = __importDefault(require("./services/reimbursement-services"));
+const multer_1 = __importDefault(require("multer"));
 const app = (0, express_1.default)();
 const employeeDao = new employee_dao_1.EmployeeDaoImpl();
 const reimbursementDao = new reimbursement_dao_1.ReimbursementDaoImpl();
 const reimbursementService = new reimbursement_services_1.default(employeeDao, reimbursementDao);
 app.use((0, cors_1.default)());
+const upload = (0, multer_1.default)();
+app.route('/reimbursements/:id/upload')
+    .post(upload.array('uploads'), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const fd = req.files;
+        if (!fd)
+            throw new invalid_property_error_1.default("No files found to upload", 'Upload File', []);
+        const result = yield reimbursementService.uploadFiles(id, fd);
+        res.send(result);
+    }
+    catch (error) {
+        next(error);
+    }
+}));
 app.use(express_1.default.json());
 app.route('/employees/:id')
     .get((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -78,6 +94,14 @@ app.route('/reimbursements/:id')
         const { id } = req.params;
         const reimbursements = yield reimbursementService.getReimbursementsForEmployee(id);
         res.send(reimbursements);
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+app.route('/reimbursements/:id/download')
+    .get((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
     }
     catch (error) {
         next(error);

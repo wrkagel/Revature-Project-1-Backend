@@ -32,6 +32,9 @@ class mockEmployeeDao implements EmployeeDao {
 }
 
 class mockReimbursementDao implements ReimbursementDao {
+    uploadFiles(id: string, fd: Express.Multer.File[]): Promise<boolean> {
+        throw new Error("Method not implemented.");
+    }
     async getAllReimbursements(): Promise<reimbursementItem[]> {
         return mockReimbursements;
     }
