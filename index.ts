@@ -12,6 +12,7 @@ import fs from 'fs'
 import ReimbursementService from './services/reimbursement-service-interface';
 import ReimbursementServiceImpl from './services/reimbursement-services';
 import Statistics from './entities/stats-interface';
+import multer from 'multer'
 
 const app = express();
 
@@ -20,6 +21,22 @@ const reimbursementDao:ReimbursementDao = new ReimbursementDaoImpl();
 const reimbursementService:ReimbursementService = new ReimbursementServiceImpl(employeeDao, reimbursementDao);
 
 app.use(cors());
+
+const upload = multer();
+
+app.route('/reimbursements/:id/upload')
+.post(upload.array('uploads'), async (req, res, next) => {
+    try {
+        const {id} = req.params;
+        const fd = req.files;
+        if(!fd) throw new InvalidPropertyError("No files found to upload", 'Upload File', []);
+        const result:boolean = await reimbursementService.uploadFiles(id, fd);
+        res.send(result)
+    } catch (error) {
+        next(error);
+    }
+})
+
 app.use(express.json());
 
 app.route('/employees/:id')
@@ -72,6 +89,15 @@ app.route('/reimbursements/:id')
         const {id} = req.params;
         const reimbursements:ReimbursementItem[] = await reimbursementService.getReimbursementsForEmployee(id);
         res.send(reimbursements);
+    } catch (error) {
+        next(error);
+    }
+})
+
+app.route('/reimbursements/:id/download')
+.get(async (req, res, next) => {
+    try {
+        
     } catch (error) {
         next(error);
     }

@@ -17,4 +17,5 @@ export default interface ReimbursementItem {
     date:number, 
     status:ReimbursementStatus
     //file uploads if possible
+    files?:string[]
 }

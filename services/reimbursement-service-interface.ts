@@ -17,5 +17,7 @@ export default interface ReimbursementService {
 
     updateReimbursement(id:string, status:ReimbursementStatus): Promise<ReimbursementItem>
 
+    uploadFiles(id:string, fd: { [fieldname: string]: Express.Multer.File[]; } | Express.Multer.File[]): Promise<boolean>;
+
     getStats(id:string): Promise<{companyStats:Statistics, managedStats:Statistics}>;
 }

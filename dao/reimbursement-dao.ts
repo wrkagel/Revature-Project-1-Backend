@@ -1,4 +1,5 @@
 import { CosmosClient} from "@azure/cosmos";
+import { BlobServiceClient } from "@azure/storage-blob";
 import { v4 } from "uuid";
 import ReimbursementItem, { ReimbursementStatus } from "../entities/reimbursement-item";
 import NotFoundError from "../errors/not-found-error";
@@ -8,11 +9,13 @@ export default interface ReimbursementDao {
 
     getAllReimbursements(): Promise<ReimbursementItem[]>
 
-    getAllReimbursementsForEmployee(id:String): Promise<ReimbursementItem[]>;
+    getAllReimbursementsForEmployee(id:String): Promise<ReimbursementItem[]>
 
-    createReimbursement(item:ReimbursementItem): Promise<ReimbursementItem>;
+    createReimbursement(item:ReimbursementItem): Promise<ReimbursementItem>
 
     updateReimbursementStatus(id:string, status:ReimbursementStatus): Promise<ReimbursementItem>
+
+    uploadFiles(id:string, fd: Express.Multer.File[]): Promise<boolean>
 
 }
 
@@ -21,25 +24,25 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
     private client:CosmosClient = new CosmosClient(process.env.COSMOS_CONNECTION ?? "");
     private database = this.client.database('wk-revature-db');
     private container = this.database.container('Reimbursements');
+    private blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING ?? "");
+    private blobContainerClient = this.blobServiceClient.getContainerClient('wk-project1');
 
     async getAllReimbursements(): Promise<ReimbursementItem[]> {
-        const response = await this.container.items.readAll<ReimbursementItem>().fetchAll();
+        const querySpec = {
+            query:`SELECT r.id, r.employeeId, r.type, r["desc"], r.date, r.status FROM Reimbursements r`
+        }
+        const response = await this.container.items.query(querySpec).fetchAll();
         const reimbursements:ReimbursementItem[] = response.resources;
-        return reimbursements.map((r) => {
-            const {id, employeeId, type, desc, amount, date, status} = r;
-            return {id, employeeId, type, desc, amount, date, status}});
+        return reimbursements;
     }
 
     async getAllReimbursementsForEmployee(id: String): Promise<ReimbursementItem[]> {
         const querySpec = {
-            query: `SELECT * FROM Reimbursements r WHERE r.employeeId = '${id}'`
+            query: `SELECT r.id, r.employeeId, r.type, r["desc"], r.date, r.status FROM Reimbursements r WHERE r.employeeId = '${id}'`
         }
         const response =  await this.container.items.query<ReimbursementItem>(querySpec).fetchAll();
         const reimbursements:ReimbursementItem[] = response.resources;
-        return reimbursements.map((r) => {
-            const {id, employeeId, type, desc, amount, date, status} = r;
-            return {id, employeeId, type, desc, amount, date, status};
-        });
+        return reimbursements;
     }
 
     async createReimbursement(item: ReimbursementItem): Promise<ReimbursementItem> {
@@ -67,6 +70,32 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
             throw(error);
         }
 
+    }
+
+    async uploadFiles(id: string, fd: Express.Multer.File[]): Promise<boolean> {
+        const response = await this.container.item(id, id).read<ReimbursementItem>();
+        if(!response || !response.resource) throw  new NotFoundError(`There is no matching reimbursement in the database to update. id: ${id}`,
+        'Reimbursement Update');
+        const reimbursement:ReimbursementItem = response.resource;
+        for(const file of fd) {
+            const blockBlobClient = this.blobContainerClient.getBlockBlobClient(file.originalname);
+            await blockBlobClient.uploadData(file.buffer, {
+                blobHTTPHeaders:{
+                    blobContentType:file.mimetype
+                }
+            });
+            if(reimbursement.files) {
+                if(!reimbursement.files.includes(blockBlobClient.url)) {
+                    reimbursement.files.push(blockBlobClient.url);
+                }
+            } else {
+                reimbursement.files = [blockBlobClient.url];
+            }
+        }
+        const response2 = await this.container.item(id, id).replace(reimbursement);
+        if(!response2 || !response2.resource) throw  new NotFoundError(`There is no matching reimbursement in the database to update. id: ${id}`,
+        'Reimbursement Update');
+        return true;
     }
 
 }
