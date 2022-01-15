@@ -61,7 +61,7 @@ export default class ReimbursementServiceImpl implements ReimbursementService {
         return reimbursement;
     }
 
-    async uploadFiles(id:string, fd: Express.Multer.File[]): Promise<boolean> {
+    uploadFiles(id:string, fd: Express.Multer.File[]): Promise<boolean> {
         return this.reimbursementDao.uploadFiles(id, fd);
     }
 
