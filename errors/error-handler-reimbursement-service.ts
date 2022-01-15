@@ -30,7 +30,7 @@ export default class ReimbursementServicesErrorHandler {
         }
         if(!status || !(ReimbursementStatus[item.status])) {
             valid = false;
-            message += 'Reimbursement has an illegal or missing status',
+            message += 'Reimbursement has an illegal or missing status';
             keyValuePair.push(`status: ${item.status}`);
         }
         if(!valid) throw new InvalidPropertyError(message, 'Reimbursement', keyValuePair)

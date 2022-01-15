@@ -94,15 +94,6 @@ app.route('/reimbursements/:id')
     }
 })
 
-app.route('/reimbursements/:id/download')
-.get(async (req, res, next) => {
-    try {
-        
-    } catch (error) {
-        next(error);
-    }
-})
-
 app.route('/reimbursements/update')
 .patch(async (req, res, next) => {
     try {

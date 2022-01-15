@@ -25,8 +25,8 @@ export default class ReimbursementServiceImpl implements ReimbursementService {
     async getManagedEmployees(id:string): Promise<Employee[]> {
         let result:Employee[] = [];
         const manages:string[] | undefined = (await this.getEmployeeById(id)).manages;
-        for(const id of manages ?? []) {
-            result.push(await this.employeeDao.getEmployeeById(id));
+        for(const employeeId of manages ?? []) {
+            result.push(await this.employeeDao.getEmployeeById(employeeId));
         }
         return result;
     }
@@ -62,7 +62,7 @@ export default class ReimbursementServiceImpl implements ReimbursementService {
     }
 
     async uploadFiles(id:string, fd: Express.Multer.File[]): Promise<boolean> {
-        return await this.reimbursementDao.uploadFiles(id, fd);
+        return this.reimbursementDao.uploadFiles(id, fd);
     }
 
     async getStats(id:string): Promise<{companyStats:Statistics, managedStats:Statistics}> {

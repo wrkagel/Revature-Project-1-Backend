@@ -1,8 +1,7 @@
 import EmployeeDao from "../dao/employee-dao";
 import ReimbursementDao from "../dao/reimbursement-dao";
 import Employee from "../entities/employee";
-import ReimbursementItem from "../entities/reimbursement-item";
-import reimbursementItem, { ReimbursementStatus } from "../entities/reimbursement-item";
+import ReimbursementItem, { ReimbursementStatus } from "../entities/reimbursement-item";
 import InvalidPropertyError from "../errors/invalid-property-error";
 import NotFoundError from "../errors/not-found-error";
 import ReimbursementServiceImpl from "../services/reimbursement-services";
@@ -11,7 +10,7 @@ import ReimbursementService from "../services/reimbursement-services"
 const managedEmployees:string[] = ['Harvey1', 'Harvey2',
     "Steve1", "Steve2"];
 
-class mockEmployeeDao implements EmployeeDao {
+class MockEmployeeDao implements EmployeeDao {
 
     async getEmployeeById(id: string): Promise<Employee> {
 
@@ -31,26 +30,29 @@ class mockEmployeeDao implements EmployeeDao {
     
 }
 
-class mockReimbursementDao implements ReimbursementDao {
+class MockReimbursementDao implements ReimbursementDao {
+    downloadFiles(id: string): Promise<File[]> {
+        throw new Error("Method not implemented.");
+    }
     uploadFiles(id: string, fd: Express.Multer.File[]): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
-    async getAllReimbursements(): Promise<reimbursementItem[]> {
+    async getAllReimbursements(): Promise<ReimbursementItem[]> {
         return mockReimbursements;
     }
-    updateReimbursementStatus(id:string, status:ReimbursementStatus): Promise<reimbursementItem> {
+    updateReimbursementStatus(id:string, status:ReimbursementStatus): Promise<ReimbursementItem> {
         throw new Error("Method not implemented.");
     }
     getEmployeeWithHighestAverage(): Promise<string> {
         throw new Error("Method not implemented.");
     }
-    getHighest(): Promise<reimbursementItem> {
+    getHighest(): Promise<ReimbursementItem> {
         throw new Error("Method not implemented.");
     }
-    getAllReimbursementsForEmployee(id: String): Promise<reimbursementItem[]> {
+    getAllReimbursementsForEmployee(id: string): Promise<ReimbursementItem[]> {
         throw new Error("Method not implemented");
     }
-    createReimbursement(item: reimbursementItem): Promise<reimbursementItem> {
+    createReimbursement(item: ReimbursementItem): Promise<ReimbursementItem> {
         throw new Error("Method not implemented.");
     }
     
@@ -65,7 +67,7 @@ const mockReimbursement:ReimbursementItem = {
     date:0,
     status:ReimbursementStatus.denied
 }
-const mockReimbursements:reimbursementItem[] = [
+const mockReimbursements:ReimbursementItem[] = [
     mockReimbursement,
     mockReimbursement,
     mockReimbursement,
@@ -75,7 +77,7 @@ const mockReimbursements:reimbursementItem[] = [
 
 describe("Test business logic and non-passthrough methods", () => {
 
-    const reimbursementService:ReimbursementService = new ReimbursementServiceImpl(new mockEmployeeDao(), new mockReimbursementDao());
+    const reimbursementService:ReimbursementService = new ReimbursementServiceImpl(new MockEmployeeDao(), new MockReimbursementDao());
 
     it("should return an array of employees", async ()=>{
 

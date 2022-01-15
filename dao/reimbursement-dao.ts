@@ -9,7 +9,7 @@ export default interface ReimbursementDao {
 
     getAllReimbursements(): Promise<ReimbursementItem[]>
 
-    getAllReimbursementsForEmployee(id:String): Promise<ReimbursementItem[]>
+    getAllReimbursementsForEmployee(id:string): Promise<ReimbursementItem[]>
 
     createReimbursement(item:ReimbursementItem): Promise<ReimbursementItem>
 
@@ -36,7 +36,7 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
         return reimbursements;
     }
 
-    async getAllReimbursementsForEmployee(id: String): Promise<ReimbursementItem[]> {
+    async getAllReimbursementsForEmployee(id: string): Promise<ReimbursementItem[]> {
         const querySpec = {
             query: `SELECT r.id, r.employeeId, r.type, r["desc"], r.date, r.status FROM Reimbursements r WHERE r.employeeId = '${id}'`
         }
@@ -61,7 +61,7 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
                 path:"/status",
                 value:status
             }])
-            if(!(response.resource)) throw {code:404};
+            if(!(response.resource)) throw {message:"", code:404};
             const result:ReimbursementItem = response.resource;
             return result;            
         } catch (error:any) {
@@ -79,17 +79,18 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
         const reimbursement:ReimbursementItem = response.resource;
         for(const file of fd) {
             const blockBlobClient = this.blobContainerClient.getBlockBlobClient(file.originalname);
-            await blockBlobClient.uploadData(file.buffer, {
+            const uploadResponse = await blockBlobClient.uploadData(file.buffer, {
                 blobHTTPHeaders:{
                     blobContentType:file.mimetype
                 }
             });
+            if(uploadResponse.errorCode) throw new Error('Error uploading to blob storage.');
             if(reimbursement.files) {
-                if(!reimbursement.files.includes(blockBlobClient.url)) {
-                    reimbursement.files.push(blockBlobClient.url);
+                if(!reimbursement.files.includes(blockBlobClient.name)) {
+                    reimbursement.files.push(blockBlobClient.name);
                 }
             } else {
-                reimbursement.files = [blockBlobClient.url];
+                reimbursement.files = [blockBlobClient.name];
             }
         }
         const response2 = await this.container.item(id, id).replace(reimbursement);
@@ -97,5 +98,4 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
         'Reimbursement Update');
         return true;
     }
-
 }
