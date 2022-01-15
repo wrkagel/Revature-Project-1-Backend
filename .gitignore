@@ -103,4 +103,8 @@ dist
 # TernJS port file
 .tern-port
 
+# Certificates
 *.pem
+
+# Compiled Code
+/compiled
