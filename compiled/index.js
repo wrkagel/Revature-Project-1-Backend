@@ -23,12 +23,28 @@ const http_1 = __importDefault(require("http"));
 const fs_1 = __importDefault(require("fs"));
 const reimbursement_services_1 = __importDefault(require("./services/reimbursement-services"));
 const multer_1 = __importDefault(require("multer"));
+const express_error_handler_1 = __importDefault(require("./middleware/express-error-handler"));
 const app = (0, express_1.default)();
 const employeeDao = new employee_dao_1.EmployeeDaoImpl();
 const reimbursementDao = new reimbursement_dao_1.ReimbursementDaoImpl();
 const reimbursementService = new reimbursement_services_1.default(employeeDao, reimbursementDao);
-app.use((0, cors_1.default)());
-const upload = (0, multer_1.default)();
+const allowed = ["https://white-meadow-0ceb2eb0f.azurestaticapps.net", "http://localhost:3000"];
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (allowed.indexOf(origin !== null && origin !== void 0 ? origin : "") !== -1) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Origin not allowed by CORS'));
+        }
+    }
+};
+app.use((0, cors_1.default)(corsOptions));
+const upload = (0, multer_1.default)({
+    limits: {
+        fileSize: 8000000
+    }
+});
 app.route('/reimbursements/:id/upload')
     .post(upload.array('uploads'), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -119,24 +135,7 @@ app.route('/stats/:id')
 app.all('*', (req, res, next) => {
     throw new not_found_error_1.default(`The path you are trying to find does not exist. path: ${req.originalUrl}`, 'Unknown Route');
 });
-app.use((err, req, res, next) => {
-    let message = '';
-    if (err instanceof not_found_error_1.default) {
-        res.status(404);
-        message += err.message;
-    }
-    else if (err instanceof invalid_property_error_1.default) {
-        res.status(422);
-        message += err.message;
-        message += '\n' + err.keyValuePairs.join('\n');
-    }
-    else {
-        res.status(500);
-        message += 'Unknown Server Error Occurred.';
-    }
-    console.log(err);
-    res.send(message);
-});
+app.use(express_error_handler_1.default);
 const httpServer = http_1.default.createServer(app);
 const httpsServer = https_1.default.createServer({
     key: fs_1.default.readFileSync("privkey.pem"),
