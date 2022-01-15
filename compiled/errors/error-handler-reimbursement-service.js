@@ -33,8 +33,8 @@ class ReimbursementServicesErrorHandler {
         }
         if (!status || !(reimbursement_item_1.ReimbursementStatus[item.status])) {
             valid = false;
-            message += 'Reimbursement has an illegal or missing status',
-                keyValuePair.push(`status: ${item.status}`);
+            message += 'Reimbursement has an illegal or missing status';
+            keyValuePair.push(`status: ${item.status}`);
         }
         if (!valid)
             throw new invalid_property_error_1.default(message, 'Reimbursement', keyValuePair);

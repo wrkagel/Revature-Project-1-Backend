@@ -99,14 +99,6 @@ app.route('/reimbursements/:id')
         next(error);
     }
 }));
-app.route('/reimbursements/:id/download')
-    .get((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-    }
-    catch (error) {
-        next(error);
-    }
-}));
 app.route('/reimbursements/update')
     .patch((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {

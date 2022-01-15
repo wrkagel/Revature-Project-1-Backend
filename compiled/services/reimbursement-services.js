@@ -37,8 +37,8 @@ class ReimbursementServiceImpl {
         return __awaiter(this, void 0, void 0, function* () {
             let result = [];
             const manages = (yield this.getEmployeeById(id)).manages;
-            for (const id of manages !== null && manages !== void 0 ? manages : []) {
-                result.push(yield this.employeeDao.getEmployeeById(id));
+            for (const employeeId of manages !== null && manages !== void 0 ? manages : []) {
+                result.push(yield this.employeeDao.getEmployeeById(employeeId));
             }
             return result;
         });
@@ -78,7 +78,7 @@ class ReimbursementServiceImpl {
     }
     uploadFiles(id, fd) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.reimbursementDao.uploadFiles(id, fd);
+            return this.reimbursementDao.uploadFiles(id, fd);
         });
     }
     getStats(id) {

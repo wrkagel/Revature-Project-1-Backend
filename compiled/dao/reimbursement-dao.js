@@ -66,7 +66,7 @@ class ReimbursementDaoImpl {
                         value: status
                     }]);
                 if (!(response.resource))
-                    throw { code: 404 };
+                    throw { message: "", code: 404 };
                 const result = response.resource;
                 return result;
             }
@@ -85,18 +85,20 @@ class ReimbursementDaoImpl {
             const reimbursement = response.resource;
             for (const file of fd) {
                 const blockBlobClient = this.blobContainerClient.getBlockBlobClient(file.originalname);
-                yield blockBlobClient.uploadData(file.buffer, {
+                const uploadResponse = yield blockBlobClient.uploadData(file.buffer, {
                     blobHTTPHeaders: {
                         blobContentType: file.mimetype
                     }
                 });
+                if (uploadResponse.errorCode)
+                    throw new Error('Error uploading to blob storage.');
                 if (reimbursement.files) {
-                    if (!reimbursement.files.includes(blockBlobClient.url)) {
-                        reimbursement.files.push(blockBlobClient.url);
+                    if (!reimbursement.files.includes(blockBlobClient.name)) {
+                        reimbursement.files.push(blockBlobClient.name);
                     }
                 }
                 else {
-                    reimbursement.files = [blockBlobClient.url];
+                    reimbursement.files = [blockBlobClient.name];
                 }
             }
             const response2 = yield this.container.item(id, id).replace(reimbursement);

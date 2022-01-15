@@ -18,7 +18,7 @@ const not_found_error_1 = __importDefault(require("../errors/not-found-error"));
 const reimbursement_services_1 = __importDefault(require("../services/reimbursement-services"));
 const managedEmployees = ['Harvey1', 'Harvey2',
     "Steve1", "Steve2"];
-class mockEmployeeDao {
+class MockEmployeeDao {
     getEmployeeById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             if (id === 'testManager') {
@@ -36,7 +36,10 @@ class mockEmployeeDao {
         throw new Error("Method not implemented.");
     }
 }
-class mockReimbursementDao {
+class MockReimbursementDao {
+    downloadFiles(id) {
+        throw new Error("Method not implemented.");
+    }
     uploadFiles(id, fd) {
         throw new Error("Method not implemented.");
     }
@@ -78,7 +81,7 @@ const mockReimbursements = [
     Object.assign(Object.assign({}, mockReimbursement), { employeeId: "Steve2", amount: 20.55 })
 ];
 describe("Test business logic and non-passthrough methods", () => {
-    const reimbursementService = new reimbursement_services_1.default(new mockEmployeeDao(), new mockReimbursementDao());
+    const reimbursementService = new reimbursement_services_1.default(new MockEmployeeDao(), new MockReimbursementDao());
     it("should return an array of employees", () => __awaiter(void 0, void 0, void 0, function* () {
         const employees = yield reimbursementService.getManagedEmployees('testManager');
         expect(employees.length).toBe(4);
