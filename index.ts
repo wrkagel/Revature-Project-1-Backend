@@ -21,16 +21,11 @@ const employeeDao:EmployeeDao = new EmployeeDaoImpl();
 const reimbursementDao:ReimbursementDao = new ReimbursementDaoImpl();
 const reimbursementService:ReimbursementService = new ReimbursementServiceImpl(employeeDao, reimbursementDao);
 
-const allowed = ["https://white-meadow-0ceb2eb0f.azurestaticapps.net", "http://localhost:3000"]
+const origin = "https://white-meadow-0ceb2eb0f.azurestaticapps.net";
+//const origin = "http://localhost:3000"
 
 const corsOptions:CorsOptions = {
-    origin:(origin, callback) => {
-        if(allowed.indexOf(origin ?? "") !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Origin not allowed by CORS'));
-        }
-    }
+    origin
 }
 
 app.use(cors(corsOptions));
