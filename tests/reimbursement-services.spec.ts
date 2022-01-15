@@ -5,7 +5,7 @@ import ReimbursementItem, { ReimbursementStatus } from "../entities/reimbursemen
 import InvalidPropertyError from "../errors/invalid-property-error";
 import NotFoundError from "../errors/not-found-error";
 import ReimbursementServiceImpl from "../services/reimbursement-services";
-import ReimbursementService from "../services/reimbursement-services"
+import ReimbursementService from "../services/reimbursement-service-interface";
 
 const managedEmployees:string[] = ['Harvey1', 'Harvey2',
     "Steve1", "Steve2"];

@@ -66,7 +66,7 @@ class ReimbursementDaoImpl {
                         value: status
                     }]);
                 if (!(response.resource))
-                    throw { message: "", code: 404 };
+                    throw new not_found_error_1.default(`There is no matching reimbursement in the database to update. id: ${id}`, 'Reimbursement Update');
                 const result = response.resource;
                 return result;
             }

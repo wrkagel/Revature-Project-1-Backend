@@ -61,9 +61,10 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
                 path:"/status",
                 value:status
             }])
-            if(!(response.resource)) throw {message:"", code:404};
+            if(!(response.resource)) throw new NotFoundError(`There is no matching reimbursement in the database to update. id: ${id}`,
+            'Reimbursement Update');
             const result:ReimbursementItem = response.resource;
-            return result;            
+            return result;
         } catch (error:any) {
             if(error.code === 404) error =  new NotFoundError(`There is no matching reimbursement in the database to update. id: ${id}`,
             'Reimbursement Update');
