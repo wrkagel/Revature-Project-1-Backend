@@ -13,6 +13,7 @@ import ReimbursementService from './services/reimbursement-service-interface';
 import ReimbursementServiceImpl from './services/reimbursement-services';
 import Statistics from './entities/stats-interface';
 import multer from 'multer'
+import expressErrorHandler from './middleware/express-error-handler';
 
 const app = express();
 
@@ -22,7 +23,11 @@ const reimbursementService:ReimbursementService = new ReimbursementServiceImpl(e
 
 app.use(cors());
 
-const upload = multer();
+const upload = multer({
+    limits:{
+        fileSize:8000000
+    }
+});
 
 app.route('/reimbursements/:id/upload')
 .post(upload.array('uploads'), async (req, res, next) => {
@@ -116,22 +121,7 @@ app.all('*', (req, res, next) => {
     throw new NotFoundError(`The path you are trying to find does not exist. path: ${req.originalUrl}`, 'Unknown Route')
 })
 
-app.use((err:Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    let message = '';
-    if(err instanceof NotFoundError) {
-        res.status(404);
-        message += err.message
-    } else if (err instanceof InvalidPropertyError) {
-        res.status(422);
-        message += err.message;
-        message += '\n' + err.keyValuePairs.join('\n');
-    } else {
-        res.status(500);
-        message += 'Unknown Server Error Occurred.';
-    }
-    console.log(err);
-    res.send(message);
-});
+app.use(expressErrorHandler);
 
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer({
