@@ -29,7 +29,7 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
 
     async getAllReimbursements(): Promise<ReimbursementItem[]> {
         const querySpec = {
-            query:`SELECT r.id, r.employeeId, r.type, r["desc"], r.date, r.status FROM Reimbursements r`
+            query:`SELECT r.id, r.employeeId, r.amount, r.type, r["desc"], r.date, r.status FROM Reimbursements r`
         }
         const response = await this.container.items.query(querySpec).fetchAll();
         const reimbursements:ReimbursementItem[] = response.resources;
@@ -38,7 +38,7 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
 
     async getAllReimbursementsForEmployee(id: string): Promise<ReimbursementItem[]> {
         const querySpec = {
-            query: `SELECT r.id, r.employeeId, r.type, r["desc"], r.date, r.status FROM Reimbursements r WHERE r.employeeId = '${id}'`
+            query: `SELECT r.id, r.employeeId, r.amount, r.type, r["desc"], r.date, r.status FROM Reimbursements r WHERE r.employeeId = '${id}'`
         }
         const response =  await this.container.items.query<ReimbursementItem>(querySpec).fetchAll();
         const reimbursements:ReimbursementItem[] = response.resources;
