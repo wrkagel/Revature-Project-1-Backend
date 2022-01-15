@@ -2,7 +2,7 @@ import express from 'express';
 import EmployeeDao, { EmployeeDaoImpl } from './dao/employee-dao';
 import Employee from './entities/employee';
 import NotFoundError from './errors/not-found-error';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import ReimbursementDao, { ReimbursementDaoImpl } from './dao/reimbursement-dao';
 import ReimbursementItem from './entities/reimbursement-item';
 import InvalidPropertyError from './errors/invalid-property-error';
@@ -21,7 +21,19 @@ const employeeDao:EmployeeDao = new EmployeeDaoImpl();
 const reimbursementDao:ReimbursementDao = new ReimbursementDaoImpl();
 const reimbursementService:ReimbursementService = new ReimbursementServiceImpl(employeeDao, reimbursementDao);
 
-app.use(cors());
+const allowed = ["https://white-meadow-0ceb2eb0f.azurestaticapps.net", "http://localhost:3000"]
+
+const corsOptions:CorsOptions = {
+    origin:(origin, callback) => {
+        if(allowed.indexOf(origin ?? "") !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Origin not allowed by CORS'));
+        }
+    }
+}
+
+app.use(cors(corsOptions));
 
 const upload = multer({
     limits:{
