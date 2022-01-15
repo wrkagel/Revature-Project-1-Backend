@@ -65,10 +65,12 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
             'Reimbursement Update');
             const result:ReimbursementItem = response.resource;
             return result;
-        } catch (error:any) {
-            if(error.code === 404) error =  new NotFoundError(`There is no matching reimbursement in the database to update. id: ${id}`,
+        } catch (error) {
+            //necessary to fix compile issue on server.
+            let anyError:any = error;
+            if(anyError.code === 404) anyError =  new NotFoundError(`There is no matching reimbursement in the database to update. id: ${id}`,
             'Reimbursement Update');
-            throw(error);
+            throw(anyError);
         }
 
     }
