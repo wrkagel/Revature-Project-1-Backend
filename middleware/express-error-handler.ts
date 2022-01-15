@@ -17,5 +17,5 @@ export default function expressErrorHandler (err:Error, req: express.Request, re
     }
     console.log(err);
     res.send(message);
-};
+}
 
