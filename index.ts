@@ -14,6 +14,8 @@ import ReimbursementServiceImpl from './services/reimbursement-services';
 import Statistics from './entities/stats-interface';
 import multer from 'multer'
 import expressErrorHandler from './middleware/express-error-handler';
+import reqLogger from './middleware/req-logger';
+import errLogger from './middleware/error-logger';
 
 const app = express();
 
@@ -29,6 +31,8 @@ const corsOptions:CorsOptions = {
 }
 
 app.use(cors(corsOptions));
+
+app.use(reqLogger);
 
 const upload = multer({
     limits:{
@@ -128,6 +132,7 @@ app.all('*', (req, res, next) => {
     throw new NotFoundError(`The path you are trying to find does not exist. path: ${req.originalUrl}`, 'Unknown Route')
 })
 
+app.use(errLogger);
 app.use(expressErrorHandler);
 
 const httpServer = http.createServer(app);
