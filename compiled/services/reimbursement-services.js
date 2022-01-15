@@ -77,9 +77,7 @@ class ReimbursementServiceImpl {
         });
     }
     uploadFiles(id, fd) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.reimbursementDao.uploadFiles(id, fd);
-        });
+        return this.reimbursementDao.uploadFiles(id, fd);
     }
     getStats(id) {
         var _a;
