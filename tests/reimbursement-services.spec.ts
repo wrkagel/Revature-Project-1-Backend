@@ -24,8 +24,10 @@ class MockEmployeeDao implements EmployeeDao {
             throw new NotFoundError('Not Found', 'Test');
         }
     }
-    getEmployeeByLogin(user: string, pass: string): Promise<Employee> {
-        throw new Error("Method not implemented.");
+    async getEmployeeByLogin(user: string, pass: string): Promise<Employee> {
+        if(user === "test" && pass === "test") return {fname:"", id:"", manages:managedEmployees};
+        if(user === "NotAManager" && pass === "test") return {fname:"NotAManager", id:""};
+        else throw new NotFoundError('Not Found', 'Test');
     }
     
 }
@@ -126,6 +128,7 @@ describe("Test business logic and non-passthrough methods", () => {
             }
             //@ts-ignore
             await reimbursementService.createReimbursement(reimbursement);
+            fail();
         } catch (error) {
             expect(error).toBeInstanceOf(InvalidPropertyError);
             expect(error).toHaveProperty("keyValuePairs", [
@@ -143,6 +146,7 @@ describe("Test business logic and non-passthrough methods", () => {
         try {
             //@ts-ignore
             await reimbursementService.updateReimbursement("test", "dave");
+            fail();
         } catch (error) {
             expect(error).toBeInstanceOf(InvalidPropertyError);
             expect(error).toHaveProperty("keyValuePairs", ['status: dave']);
@@ -159,4 +163,19 @@ describe("Test business logic and non-passthrough methods", () => {
         expect(companyStats.avgAmount).toBe(((20+20+20+5.47+20.55)/5).toFixed(2));
         expect(companyStats).toEqual(managedStats);
     });
+
+    it("should return the test manager", async () => {
+        const employee:Employee = await reimbursementService.getMobileLogin("test", "test");
+        expect(employee.manages).toHaveLength(4);
+    })
+
+    it("should fail to validate for an employee who is not a manager", async () => {
+        try {
+            await reimbursementService.getMobileLogin("NotAManager", "test");
+            fail();
+        } catch (error) {
+            expect(error).toBeInstanceOf(NotFoundError);
+            expect(error).toHaveProperty("type", "Login");
+        }
+    })
 })

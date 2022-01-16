@@ -44,7 +44,8 @@ describe("Test Reimbursement Dao", () => {
 
     it("should throw a 404 error if the reimbursement doesn't exist", async () => {
         try {
-            await reimbursementDao.updateReimbursementStatus("NotARealID", ReimbursementStatus.approved)   
+            await reimbursementDao.updateReimbursementStatus("NotARealID", ReimbursementStatus.approved);
+            fail();
         } catch (error) {
             expect(error).toBeInstanceOf(NotFoundError);
         }
@@ -58,7 +59,7 @@ describe("Test Reimbursement Dao", () => {
 
     afterAll(async () => {
         try {
-            await container.item(dummyReimbursement.id, dummyReimbursement.id).delete();            
+            await container.item(dummyReimbursement.id, dummyReimbursement.id).delete();          
         } catch (error) {
             console.log('failed to delete dummyReimbursement after end of test');
             throw(error);

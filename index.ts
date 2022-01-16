@@ -88,6 +88,17 @@ app.route('/login')
     }
 });
 
+app.route('/loginMobile')
+.patch(async (req, res, next) => {
+    try {
+        const {user, pass} = req.body;
+        const employee = await reimbursementService.getMobileLogin(String(user), String(pass));
+        res.send(employee);
+    } catch (error) {
+        next(error);
+    }
+})
+
 app.route('/reimbursements')
 .post(async (req, res, next) => {
     try {

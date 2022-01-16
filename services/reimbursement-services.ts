@@ -22,6 +22,12 @@ export default class ReimbursementServiceImpl implements ReimbursementService {
         return employee;
     }
 
+    async getMobileLogin(user: string, pass: string): Promise<Employee> {
+        const employee:Employee = await this.employeeDao.getEmployeeByLogin(user, pass);
+        if(!employee.manages) throw new NotFoundError('No matching username and password found', 'Login');
+        return employee;
+    }
+
     async getManagedEmployees(id:string): Promise<Employee[]> {
         let result:Employee[] = [];
         const manages:string[] | undefined = (await this.getEmployeeById(id)).manages;

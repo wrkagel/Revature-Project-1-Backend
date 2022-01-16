@@ -9,6 +9,8 @@ export default interface ReimbursementService {
 
     getEmployeeByLogin(user:string, pass:string): Promise<Employee>
 
+    getMobileLogin(user:string, pass:string): Promise<Employee>
+
     getManagedEmployees(id:string): Promise<Employee[]>
 
     getReimbursementsForEmployee(id:string): Promise<ReimbursementItem[]>

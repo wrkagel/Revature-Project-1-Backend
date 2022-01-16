@@ -32,6 +32,7 @@ describe("Test employee DAO", () => {
     it("should throw NotFoundError if no matching credentials found", async () => {
         try {
             await employeeDao.getEmployeeByLogin("HarveyGhost", "Ghost");
+            fail();
         } catch (error) {
             expect(error).toBeInstanceOf(Error);
         }
