@@ -60,6 +60,7 @@ export default function createJsonRouter(reimbursementService:ReimbursementServi
         try {
             const reimbursement:ReimbursementItem = req.body;
             const newReimbursement:ReimbursementItem = await reimbursementService.createReimbursement(reimbursement);
+            res.status(201);
             res.send(newReimbursement);
         } catch (error) {
             next(error);

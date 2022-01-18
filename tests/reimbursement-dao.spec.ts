@@ -49,12 +49,17 @@ describe("Test Reimbursement Dao", () => {
         } catch (error) {
             expect(error).toBeInstanceOf(NotFoundError);
         }
-    });
+    })
 
     it("should return all reimbursements in the database", async () => {
         const reimbursements:ReimbursementItem[] = await reimbursementDao.getAllReimbursements();
         expect(reimbursements).toBeTruthy();
         expect(reimbursements.length).toBeGreaterThan(5);
+    })
+
+    it("should download all files for a reimbursement in the database.", async () => {
+        const buffer = reimbursementDao.downloadFiles("b1f3fef6-b8bd-406a-8bc3-488b120079ad");
+        expect(buffer).toBeTruthy();
     })
 
     afterAll(async () => {

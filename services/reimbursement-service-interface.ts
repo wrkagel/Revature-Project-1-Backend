@@ -21,5 +21,7 @@ export default interface ReimbursementService {
 
     uploadFiles(id:string, fd: { [fieldname: string]: Express.Multer.File[]; } | Express.Multer.File[]): Promise<boolean>;
 
+    downloadFiles(id:string): Promise<{name:string, buffer:Buffer}[]>
+
     getStats(id:string): Promise<{companyStats:Statistics, managedStats:Statistics}>;
 }

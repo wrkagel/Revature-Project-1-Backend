@@ -71,6 +71,10 @@ export default class ReimbursementServiceImpl implements ReimbursementService {
         return this.reimbursementDao.uploadFiles(id, fd);
     }
 
+    downloadFiles(id: string): Promise<{name:string, buffer:Buffer}[]> {
+        return this.reimbursementDao.downloadFiles(id);
+    }
+
     async getStats(id:string): Promise<{companyStats:Statistics, managedStats:Statistics}> {
         const reimbursements:ReimbursementItem[] = await this.reimbursementDao.getAllReimbursements();
         const companyStats:Statistics = await this.calculateStats(reimbursements);

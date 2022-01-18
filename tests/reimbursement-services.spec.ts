@@ -33,7 +33,7 @@ class MockEmployeeDao implements EmployeeDao {
 }
 
 class MockReimbursementDao implements ReimbursementDao {
-    downloadFiles(id: string): Promise<File[]> {
+    downloadFiles(id: string): Promise<{name:string, buffer:Buffer}[]> {
         throw new Error("Method not implemented.");
     }
     uploadFiles(id: string, fd: Express.Multer.File[]): Promise<boolean> {

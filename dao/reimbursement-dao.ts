@@ -17,6 +17,8 @@ export default interface ReimbursementDao {
 
     uploadFiles(id:string, fd: Express.Multer.File[]): Promise<boolean>
 
+    downloadFiles(id:string): Promise<{name:string, buffer:Buffer}[]>
+
 }
 
 export class ReimbursementDaoImpl implements ReimbursementDao {
@@ -98,7 +100,22 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
         }
         const response2 = await this.container.item(id, id).replace(reimbursement);
         if(!response2 || !response2.resource) throw  new NotFoundError(`There is no matching reimbursement in the database to update. id: ${id}`,
-        'Reimbursement Update');
+        'File Upload');
         return true;
+    }
+
+    async downloadFiles(id: string): Promise<{name:string, buffer:Buffer}[]> {
+        const response = await this.container.item(id, id).read<ReimbursementItem>();
+        if(!response || !response.resource) throw  new NotFoundError(`There is no matching reimbursement in the database to update. id: ${id}`,
+        'Reimbursement Update');
+        const reimbursement:ReimbursementItem = response.resource;
+        if(!reimbursement.files) throw new NotFoundError(`There are no files associated with this reimbursement. id: ${id}`, 'File Download')
+        const buffers:{name:string, buffer:Buffer}[] = []
+        for(const name of reimbursement.files) {
+            const blockBlobClient = this.blobContainerClient.getBlockBlobClient(name);
+            const buffer:Buffer = await blockBlobClient.downloadToBuffer();
+            buffers.push({name, buffer});
+        }
+        return buffers;
     }
 }
