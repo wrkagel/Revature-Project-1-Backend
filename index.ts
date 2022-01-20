@@ -2,9 +2,6 @@ import express from 'express';
 import EmployeeDao, { EmployeeDaoImpl } from './dao/employee-dao';
 import cors, { CorsOptions } from 'cors';
 import ReimbursementDao, { ReimbursementDaoImpl } from './dao/reimbursement-dao';
-//import https from 'https'
-import http from 'http';
-//import fs from 'fs'
 import ReimbursementService from './services/reimbursement-service-interface';
 import ReimbursementServiceImpl from './services/reimbursement-services';
 import expressErrorHandler from './middleware/express-error-handler';
@@ -37,11 +34,4 @@ app.use(createJsonRouter(reimbursementService));
 app.use(errLogger);
 app.use(expressErrorHandler);
 
-const httpServer = http.createServer(app);
-// const httpsServer = https.createServer({
-//     key:fs.readFileSync("privkey.pem"),
-//     cert:fs.readFileSync("cert.pem")
-// },app);
-
-httpServer.listen(80, ()=>console.log("HTTPServer listening on port 80"));
-// httpsServer.listen(443, () => console.log("HTTPSServer listening on port 443"));
+app.listen(process.env.PORT, () => "app listening on port: " + process.env.PORT)
