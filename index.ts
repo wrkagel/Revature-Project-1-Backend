@@ -9,6 +9,8 @@ import reqLogger from './middleware/req-logger';
 import errLogger from './middleware/error-logger';
 import createFileRouter from './routers/file-router';
 import createJsonRouter from './routers/json-router';
+import https from 'https';
+import fs from 'fs';
 
 const app = express();
 
@@ -34,4 +36,9 @@ app.use(createJsonRouter(reimbursementService));
 app.use(errLogger);
 app.use(expressErrorHandler);
 
-app.listen(process.env.PORT, () => "app listening on port: " + process.env.PORT)
+const httpsServer = https.createServer({
+    key: fs.readFileSync("privkey.pem"),
+    cert: fs.readFileSync("cert.pem")
+},app);
+
+httpsServer.listen(process.env.PORT, () => "app listening on port: " + process.env.PORT)
