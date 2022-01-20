@@ -83,7 +83,8 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
         'Reimbursement Update');
         const reimbursement:ReimbursementItem = response.resource;
         for(const file of fd) {
-            const blockBlobClient = this.blobContainerClient.getBlockBlobClient(file.originalname);
+            const {originalname} = file
+            const blockBlobClient = this.blobContainerClient.getBlockBlobClient(`${id}/${originalname}`);
             const uploadResponse = await blockBlobClient.uploadData(file.buffer, {
                 blobHTTPHeaders:{
                     blobContentType:file.mimetype
@@ -91,11 +92,11 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
             });
             if(uploadResponse.errorCode) throw new Error('Error uploading to blob storage.');
             if(reimbursement.files) {
-                if(!reimbursement.files.includes(blockBlobClient.name)) {
-                    reimbursement.files.push(blockBlobClient.name);
+                if(!reimbursement.files.includes(originalname)) {
+                    reimbursement.files.push(originalname);
                 }
             } else {
-                reimbursement.files = [blockBlobClient.name];
+                reimbursement.files = [originalname];
             }
         }
         const response2 = await this.container.item(id, id).replace(reimbursement);
@@ -112,7 +113,7 @@ export class ReimbursementDaoImpl implements ReimbursementDao {
         if(!reimbursement.files) throw new NotFoundError(`There are no files associated with this reimbursement. id: ${id}`, 'File Download')
         const buffers:{name:string, buffer:Buffer}[] = []
         for(const name of reimbursement.files) {
-            const blockBlobClient = this.blobContainerClient.getBlockBlobClient(name);
+            const blockBlobClient = this.blobContainerClient.getBlockBlobClient(`${reimbursement.id}/${name}`);
             const buffer:Buffer = await blockBlobClient.downloadToBuffer();
             buffers.push({name, buffer});
         }

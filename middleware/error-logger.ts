@@ -8,6 +8,8 @@ const logger = createLogger({
 });
 
 const errLogger:ErrorRequestHandler = expressWinston.errorLogger({
-    winstonInstance: logger});
+    winstonInstance: logger,
+    msg:'HTTP: {{err}}, {{res.statusCode}} {{req.method}}'
+})
 
 export default errLogger;
