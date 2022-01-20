@@ -38,10 +38,10 @@ app.use(errLogger);
 app.use(expressErrorHandler);
 
 const httpServer = http.createServer(app);
-const httpsServer = https.createServer({
-    key:fs.readFileSync("privkey.pem"),
-    cert:fs.readFileSync("cert.pem")
-},app);
+// const httpsServer = https.createServer({
+//     key:fs.readFileSync("privkey.pem"),
+//     cert:fs.readFileSync("cert.pem")
+// },app);
 
 httpServer.listen(80, ()=>console.log("HTTPServer listening on port 80"));
-httpsServer.listen(443, () => console.log("HTTPSServer listening on port 443"));
+// httpsServer.listen(443, () => console.log("HTTPSServer listening on port 443"));
