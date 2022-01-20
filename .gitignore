@@ -108,3 +108,5 @@ dist
 
 # Compiled Code
 /compiled
+
+.vscode
