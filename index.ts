@@ -43,5 +43,5 @@ const httpServer = http.createServer(app);
 //     cert:fs.readFileSync("cert.pem")
 // },app);
 
-httpServer.listen(8080, ()=>console.log("HTTPServer listening on port 80"));
+httpServer.listen(80, ()=>console.log("HTTPServer listening on port 80"));
 // httpsServer.listen(443, () => console.log("HTTPSServer listening on port 443"));
