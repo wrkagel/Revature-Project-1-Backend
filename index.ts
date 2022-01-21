@@ -23,6 +23,8 @@ const corsOptions:CorsOptions = {
     origin
 }
 
+app.disabled('x-powered-by')
+
 app.use(cors(corsOptions));
 
 app.use(reqLogger);
@@ -34,4 +36,4 @@ app.use(createJsonRouter(reimbursementService));
 app.use(errLogger);
 app.use(expressErrorHandler);
 
-app.listen(process.env.PORT, () => "app listening on port: " + process.env.PORT)
+app.listen(process.env.PORT ?? 5000, () => console.log("app listening on port: " + (process.env.PORT ?? 5000)))

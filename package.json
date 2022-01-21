@@ -5,7 +5,8 @@
   "main": "./compiled/index.js",
   "scripts": {
     "test": "jest",
-    "start": "node index.js"
+    "start": "node index.js",
+    "tsStart": "ts-node index.ts"
   },
   "repository": {
     "type": "git",
