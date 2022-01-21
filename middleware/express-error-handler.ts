@@ -15,6 +15,7 @@ export default function expressErrorHandler (err:Error, req: express.Request, re
         res.status(500);
         message += 'Unknown Server Error Occurred.';
     }
+    console.error(err);
     res.send(message);
 }
 

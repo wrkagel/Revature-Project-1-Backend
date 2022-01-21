@@ -96,6 +96,11 @@ export default function createJsonRouter(reimbursementService:ReimbursementServi
         res.send(stats);
     })
 
+    router.route('/')
+    .get((req, res) => {
+        res.send("");
+    })
+
     router.all('*', (req, res, next) => {
         throw new NotFoundError(`The path you are trying to find does not exist. path: ${req.originalUrl}`, 'Unknown Route')
     })
