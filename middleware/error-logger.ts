@@ -11,7 +11,7 @@ const logger = createLogger({
 
 const errLogger:ErrorRequestHandler = expressWinston.errorLogger({
     winstonInstance: logger,
-    msg:'HTTP: {{err}}, {{res.statusCode}} {{req.method}}'
+    msg:'HTTP: {{err.msg}}, {{res.statusCode}} {{req.method}}'
 })
 
 export default errLogger;
