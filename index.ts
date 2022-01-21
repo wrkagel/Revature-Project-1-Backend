@@ -23,7 +23,7 @@ const corsOptions:CorsOptions = {
     origin
 }
 
-app.disabled('x-powered-by')
+app.disable('x-powered-by')
 
 app.use(cors(corsOptions));
 
