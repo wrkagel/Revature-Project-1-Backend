@@ -2,7 +2,7 @@
   "name": "expense-backend",
   "description": "Expense Reimbursement Backend",
   "version": "1.0.0",
-  "main": "./compiled/index.js",
+  "main": "./index.js",
   "scripts": {
     "test": "jest",
     "start": "node index.js",
